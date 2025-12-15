@@ -127,6 +127,18 @@ func (dm *DeploymentManager) WriteComposeFile(projectName string, composeFileBas
 func (dm *DeploymentManager) DeployCompose(projectName string, composeFileBase64 string) (string, error) {
 	log.Printf("DeployCompose: Starting deployment for project '%s'", projectName)
 	
+	// Check if Docker is installed before attempting deployment
+	log.Println("DeployCompose: Verifying Docker installation...")
+	if !CheckDockerInstalled() {
+		log.Println("DeployCompose: Docker not found, attempting installation...")
+		if err := InstallDocker(); err != nil {
+			errMsg := fmt.Sprintf("Docker is not installed and automatic installation failed: %v", err)
+			log.Printf("DeployCompose: %s", errMsg)
+			return "", fmt.Errorf(errMsg)
+		}
+		log.Println("DeployCompose: Docker successfully installed")
+	}
+	
 	// Write the compose file
 	composeFilePath, err := dm.WriteComposeFile(projectName, composeFileBase64)
 	if err != nil {
