@@ -1,0 +1,34 @@
+[Unit]
+Description=InstaDeploy Agent
+Documentation=https://github.com/yourorg/instadeploy
+After=docker.service
+Requires=docker.service
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=10
+User=root
+
+# Configuration - REPLACE THESE VALUES
+Environment="SERVER_URL=wss://control.example.com/api/v1/agents/ws"
+Environment="AGENT_SECRET_TOKEN=YOUR_UNIQUE_TOKEN_HERE"
+
+# Agent binary path
+ExecStart=/usr/local/bin/instadeploy-agent
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=instadeploy-agent
+
+# Security hardening (optional)
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/opt/platform /var/run/docker.sock
+
+[Install]
+WantedBy=multi-user.target
+

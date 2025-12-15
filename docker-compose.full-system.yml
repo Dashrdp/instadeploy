@@ -1,0 +1,52 @@
+version: '3.8'
+
+# Full InstaDeploy System
+# This docker-compose file sets up both Control Plane and a test Agent
+
+services:
+  control-plane:
+    build: ./control-plane
+    container_name: instadeploy-control-plane
+    ports:
+      - "8000:8000"
+    environment:
+      - AGENT_SECRET_TOKEN=test-secret-token
+      - DATABASE_URL=sqlite:///./data/control_plane.db
+      - HOST=0.0.0.0
+      - PORT=8000
+    volumes:
+      - control-plane-data:/app/data
+    restart: unless-stopped
+    networks:
+      - instadeploy
+
+  # Note: The agent requires Docker socket access and is better run directly on the host
+  # Uncomment the following if you want to run agent in Docker (not recommended for production)
+  # 
+  # agent:
+  #   build:
+  #     context: .
+  #     dockerfile: agent/Dockerfile
+  #   container_name: instadeploy-agent
+  #   environment:
+  #     - SERVER_URL=ws://control-plane:8000/ws
+  #     - AGENT_SECRET_TOKEN=test-secret-token
+  #     - AGENT_VERSION=1.0.0
+  #     - AGENT_ARCHITECTURE=amd64
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #     - agent-projects:/opt/platform/projects
+  #   depends_on:
+  #     - control-plane
+  #   restart: unless-stopped
+  #   networks:
+  #     - instadeploy
+
+volumes:
+  control-plane-data:
+  # agent-projects:
+
+networks:
+  instadeploy:
+    driver: bridge
+

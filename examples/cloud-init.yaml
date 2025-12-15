@@ -1,0 +1,56 @@
+#cloud-config
+# InstaDeploy Agent Installation Script
+# Use this as User Data when creating cloud VPS instances
+
+package_update: true
+package_upgrade: true
+
+packages:
+  - curl
+  - ca-certificates
+
+runcmd:
+  # Install Docker
+  - curl -fsSL https://get.docker.com -o /tmp/get-docker.sh
+  - sh /tmp/get-docker.sh
+  
+  # Download agent binary (REPLACE WITH YOUR URL)
+  - curl -L https://github.com/yourorg/instadeploy/releases/latest/download/agent-linux-amd64 -o /usr/local/bin/instadeploy-agent
+  - chmod +x /usr/local/bin/instadeploy-agent
+  
+  # Create project directory
+  - mkdir -p /opt/platform/projects
+  - chmod 755 /opt/platform/projects
+  
+  # Create systemd service (REPLACE TOKEN WITH UNIQUE VALUE)
+  - |
+    cat > /etc/systemd/system/instadeploy-agent.service << 'EOF'
+    [Unit]
+    Description=InstaDeploy Agent
+    After=docker.service
+    Requires=docker.service
+    
+    [Service]
+    Type=simple
+    Restart=always
+    RestartSec=10
+    User=root
+    Environment="SERVER_URL=wss://control.example.com/api/v1/agents/ws"
+    Environment="AGENT_SECRET_TOKEN=__REPLACE_WITH_UNIQUE_TOKEN__"
+    ExecStart=/usr/local/bin/instadeploy-agent
+    StandardOutput=journal
+    StandardError=journal
+    
+    [Install]
+    WantedBy=multi-user.target
+    EOF
+  
+  # Start service
+  - systemctl daemon-reload
+  - systemctl enable instadeploy-agent
+  - systemctl start instadeploy-agent
+
+# Optional: Set hostname
+hostname: agent-node-1
+fqdn: agent-node-1.example.com
+
