@@ -4,8 +4,7 @@
 *.dll
 *.so
 *.dylib
-agent
-control-plane
+
 
 # Test binary
 *.test

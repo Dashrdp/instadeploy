@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  control-plane:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - AGENT_SECRET_TOKEN=${AGENT_SECRET_TOKEN:-default-secret-token}
+      - DATABASE_URL=sqlite:///./data/control_plane.db
+      - HOST=0.0.0.0
+      - PORT=8000
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+
+
