@@ -31,4 +31,5 @@ go.work
 # Platform directories
 /opt/platform/
 projects/
+env.example
 

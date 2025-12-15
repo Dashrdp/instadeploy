@@ -6,7 +6,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - AGENT_SECRET_TOKEN=${AGENT_SECRET_TOKEN:-default-secret-token}
+      - AGENT_SECRET_TOKEN=${AGENT_SECRET_TOKEN:-bb0a23ff0dfe8fc93a27b55a1d6bfba59c7cfd7e8c424c2003d10391d2805ce3}
       - DATABASE_URL=sqlite:///./data/control_plane.db
       - HOST=0.0.0.0
       - PORT=8000

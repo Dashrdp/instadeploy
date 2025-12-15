@@ -3,7 +3,7 @@ import json
 import logging
 from typing import Dict, Optional
 from fastapi import WebSocket
-from schemas import Command, Response
+from schemas import Command, Response, ResponseStatus
 
 logger = logging.getLogger(__name__)
 
@@ -66,6 +66,13 @@ class ConnectionManager:
             response_dict = json.loads(data)
             response = Response(**response_dict)
             logger.info(f"Received response from agent {agent_id}: job_id={response.job_id}, status={response.status}")
+            
+            # Log detailed error information for failed responses
+            if response.status == ResponseStatus.FAILED:
+                logger.error(f"Agent {agent_id} reported FAILED status for job {response.job_id}")
+                logger.error(f"Error message: {response.error}")
+                logger.error(f"Logs from agent:\n{response.logs}")
+            
             return response
         except Exception as e:
             logger.error(f"Error receiving response from agent {agent_id}: {e}")
